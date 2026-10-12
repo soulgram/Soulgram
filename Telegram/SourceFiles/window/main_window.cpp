@@ -322,7 +322,8 @@ QImage GenerateCounterLayer(CounterLayerArgs &&args) {
 
 	auto p = QPainter(&result);
 	auto hq = PainterHighQualityEnabler(p);
-	const auto f = style::font{ d.font, 0, 0 };
+	// Soulgram: the default font, a custom one may not fit the badge.
+	const auto f = style::font{ d.font, 0, u"Open Sans"_q };
 	const auto w = f->width(text);
 
 	p.setBrush(args.bg.value());
@@ -368,7 +369,8 @@ QImage WithSmallCounter(QImage image, CounterLayerArgs &&args) {
 
 	auto p = QPainter(&image);
 	auto hq = PainterHighQualityEnabler(p);
-	const auto f = style::font{ d.font, 0, 0 };
+	// Soulgram: the default font, a custom one may not fit the badge.
+	const auto f = style::font{ d.font, 0, u"Open Sans"_q };
 	const auto w = f->width(text);
 
 	p.setBrush(args.bg.value());
