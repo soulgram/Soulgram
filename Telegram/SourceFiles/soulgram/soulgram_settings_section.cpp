@@ -19,6 +19,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "soulgram/soulgram_lang.h"
 #include "soulgram/soulgram_links.h"
 #include "soulgram/soulgram_settings.h"
+#include "soulgram/soulgram_updates.h"
 #include "soulgram/soulgram_view_once.h"
 #include "ui/layers/generic_box.h"
 #include "ui/widgets/buttons.h"
@@ -449,9 +450,48 @@ MainSection::MainSection(
 		content,
 		TrValue(Phrase::SoulgramGithub),
 		st::settingsButton,
-		{ &st::menuIconDownload }
+		{ &st::menuIconLink }
 	)->setClickedCallback([=] {
 		UrlClickHandler::Open(QString::fromLatin1(kGithubUrl));
+	});
+	::Settings::AddButtonWithIcon(
+		content,
+		TrValue(Phrase::AutoUpdate),
+		st::settingsButton,
+		{ &st::menuIconSettings }
+	)->toggleOn(
+		rpl::single(Current().autoUpdate)
+	)->toggledChanges(
+	) | rpl::on_next([=](bool value) {
+		Change([&](Settings &settings) {
+			settings.autoUpdate = value;
+		});
+	}, content->lifetime());
+	auto updateLabel = UpdateStateValue(
+	) | rpl::map([](UpdateState state) {
+		switch (state) {
+		case UpdateState::Checking: return Tr(Phrase::UpdateChecking);
+		case UpdateState::Latest: return Tr(Phrase::UpdateLatest);
+		case UpdateState::Downloading:
+			return Tr(Phrase::UpdateDownloading).arg(UpdateVersion());
+		case UpdateState::Ready:
+			return Tr(Phrase::UpdateReady).arg(UpdateVersion());
+		case UpdateState::Failed: return Tr(Phrase::UpdateFailed);
+		case UpdateState::Disabled:
+		case UpdateState::Idle: return QString();
+		}
+		return QString();
+	});
+	::Settings::AddButtonWithLabel(
+		content,
+		TrValue(Phrase::CheckUpdates),
+		std::move(updateLabel),
+		st::settingsButton,
+		{ &st::menuIconDownload }
+	)->setClickedCallback([=] {
+		if (!InstallUpdate()) {
+			CheckForUpdates();
+		}
 	});
 	Ui::AddSkip(content);
 	Ui::AddDividerText(

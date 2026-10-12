@@ -73,6 +73,9 @@ struct Settings {
 	bool shotShowTags = true;
 	bool shotColorfulReplies = true;
 	bool shotRevealSpoilers = true;
+
+	// Updates from the GitHub releases.
+	bool autoUpdate = true;
 };
 
 [[nodiscard]] const Settings &Current();

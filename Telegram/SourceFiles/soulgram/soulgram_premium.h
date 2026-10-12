@@ -7,7 +7,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #pragma once
 
+class PeerData;
 class UserData;
+struct EmojiStatusId;
 
 namespace Main {
 class Session;
@@ -26,5 +28,22 @@ void PreloadOwnVideoUserpic(not_null<Main::Session*> session);
 [[nodiscard]] bool ServerPremium(not_null<const Main::Session*> session);
 [[nodiscard]] rpl::producer<bool> ServerPremiumValue(
 	not_null<Main::Session*> session);
+
+// Without a real Premium the server drops the own emoji status, so it is
+// kept on this computer and shown only here. Returns true if the status
+// was kept locally instead of being sent to the server.
+bool KeepLocalEmojiStatus(
+	not_null<PeerData*> peer,
+	const EmojiStatusId &id,
+	TimeId until);
+
+// The kept status replaces whatever comes for the own account.
+void ApplyLocalEmojiStatus(
+	not_null<PeerData*> peer,
+	EmojiStatusId &id,
+	TimeId &until);
+
+// Shows the kept status again after a restart.
+void RestoreLocalEmojiStatus(not_null<Main::Session*> session);
 
 } // namespace Soulgram

@@ -34,7 +34,6 @@ enum class Phrase {
 	GhostStories,
 	GhostAbout,
 
-	DeletedMark,
 	DeletedMessages,
 	DeletedMessagesEmpty,
 	DeletedAt,
@@ -196,6 +195,15 @@ enum class Phrase {
 	JoinedDate,
 	SoulgramChannel,
 	SoulgramGithub,
+	UpdateSoulgram,
+	AutoUpdate,
+	CheckUpdates,
+	UpdateChecking,
+	UpdateLatest,
+	UpdateDownloading,
+	UpdateReady,
+	UpdateFailed,
+	UpdateInstalledOnly,
 };
 
 [[nodiscard]] QString Tr(Phrase phrase);

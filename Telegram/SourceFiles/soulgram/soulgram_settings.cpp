@@ -58,6 +58,7 @@ const Field kFields[] = {
 	{ "shot_show_tags", &Settings::shotShowTags },
 	{ "shot_colorful_replies", &Settings::shotColorfulReplies },
 	{ "shot_reveal_spoilers", &Settings::shotRevealSpoilers },
+	{ "auto_update", &Settings::autoUpdate },
 };
 
 struct IntField {

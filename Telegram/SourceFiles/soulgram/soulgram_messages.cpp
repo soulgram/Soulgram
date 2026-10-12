@@ -780,46 +780,20 @@ std::optional<QVector<MTPMessage>> WithDeleted(
 		after = std::max(after, channel->availableMinId());
 	}
 	if (after >= before) {
-		LOG(("Soulgram: restore peer %1, %2 slice %3 [%4..%5], empty range "
-			"(%6..%7), last %8").arg(peer->id.value
-			).arg(older ? u"older"_q : u"newer"_q
-			).arg(slice.size()
-			).arg(slice.isEmpty() ? 0 : minId.bare
-			).arg(maxId.bare
-			).arg(after.bare
-			).arg(before.bare
-			).arg(last ? last->id.bare : 0));
 		return std::nullopt;
 	}
 	auto added = QVector<MTPMessage>();
-	auto skipped = QStringList();
 	for (const auto &record : DeletedInRange(session, peer->id, after, before)) {
 		if (ids.contains(record.msgId)) {
 			continue;
 		}
 		const auto message = ParseMessage(record.message);
 		if (!message || IdFromMessage(*message) != record.msgId) {
-			skipped.push_back(QString::number(record.msgId.bare));
 			continue;
 		}
 		ApplyPeers(session, record.sender, record.senderAppVersion);
 		added.push_back(*message);
 	}
-	LOG(("Soulgram: restore peer %1, %2 slice %3 [%4..%5], loaded %6..%7, "
-		"last %8 (known %9), range (%10..%11), added %12, no data: %13"
-		).arg(peer->id.value
-		).arg(older ? u"older"_q : u"newer"_q
-		).arg(slice.size()
-		).arg(slice.isEmpty() ? 0 : minId.bare
-		).arg(maxId.bare
-		).arg(loaded ? loaded->first.bare : 0
-		).arg(loaded ? loaded->second.bare : 0
-		).arg(last ? last->id.bare : 0
-		).arg(history->lastServerMessageKnown() ? 1 : 0
-		).arg(after.bare
-		).arg(before == kMax ? -1 : before.bare
-		).arg(added.size()
-		).arg(skipped.join(',')));
 	if (added.isEmpty()) {
 		return std::nullopt;
 	}
@@ -854,10 +828,6 @@ void MarkRestored(const std::vector<not_null<HistoryItem*>> &items) {
 		item->soulgramMarkDeleted(record->deletedAt);
 		Raw(session).erase(item.get());
 		AttachLocalCopy(item, *record);
-		LOG(("Soulgram: restored %1 in peer %2, view %3"
-			).arg(item->id.bare
-			).arg(history->peer->id.value
-			).arg(item->mainView() ? 1 : 0));
 	}
 }
 

@@ -144,6 +144,35 @@ struct CurvePoint {
 	float64 day = 0.;
 };
 
+// "January", for a month with a year.
+[[nodiscard]] QString MonthName(int month) {
+	static const auto names = std::array{
+		&tr::lng_month1, &tr::lng_month2, &tr::lng_month3,
+		&tr::lng_month4, &tr::lng_month5, &tr::lng_month6,
+		&tr::lng_month7, &tr::lng_month8, &tr::lng_month9,
+		&tr::lng_month10, &tr::lng_month11, &tr::lng_month12,
+	};
+	return (*names[std::clamp(month, 1, 12) - 1])(tr::now);
+}
+
+// "12 March 2016", the language pack would add "y." in Russian.
+[[nodiscard]] QString DayMonthYear(const QDate &date) {
+	static const auto names = std::array{
+		&tr::lng_month_day1, &tr::lng_month_day2, &tr::lng_month_day3,
+		&tr::lng_month_day4, &tr::lng_month_day5, &tr::lng_month_day6,
+		&tr::lng_month_day7, &tr::lng_month_day8, &tr::lng_month_day9,
+		&tr::lng_month_day10, &tr::lng_month_day11, &tr::lng_month_day12,
+	};
+	const auto month = (*names[std::clamp(date.month(), 1, 12) - 1])(
+		tr::now);
+	return tr::lng_month_day(
+		tr::now,
+		lt_month,
+		month,
+		lt_day,
+		QString::number(date.day())) + ' ' + QString::number(date.year());
+}
+
 [[nodiscard]] QDate ToDate(int value) {
 	return QDate(value / 10000, (value / 100) % 100, value % 100);
 }
@@ -199,11 +228,11 @@ struct CurvePoint {
 
 [[nodiscard]] QString ExactText(TimeId date) {
 	return Tr(Phrase::RegistrationExact).arg(
-		langDayOfMonthFull(base::unixtime::parse(date).date()));
+		DayMonthYear(base::unixtime::parse(date).date()));
 }
 
 [[nodiscard]] QString FormatDate(TimeId date) {
-	return langDayOfMonthFull(base::unixtime::parse(date).date());
+	return DayMonthYear(base::unixtime::parse(date).date());
 }
 
 } // namespace
@@ -214,7 +243,7 @@ QString EstimatedRegistration(not_null<UserData*> user) {
 	const auto &newest = kKnownAccounts[std::size(kKnownAccounts) - 1];
 	if (id > newest.id) {
 		return Tr(Phrase::RegistrationLater).arg(
-			langDayOfMonthFull(ToDate(newest.date)));
+			DayMonthYear(ToDate(newest.date)));
 	}
 	const auto upper = ranges::lower_bound(
 		curve,
@@ -230,7 +259,7 @@ QString EstimatedRegistration(not_null<UserData*> user) {
 	}
 	const auto date = QDate::fromJulianDay(qint64(std::round(day)));
 	return Tr(Phrase::RegistrationApproximately).arg(
-		langMonthOfYearFull(date.month(), date.year()));
+		MonthName(date.month()) + ' ' + QString::number(date.year()));
 }
 
 void RequestJoinedTelegram(

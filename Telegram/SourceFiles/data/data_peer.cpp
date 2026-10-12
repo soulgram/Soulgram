@@ -1504,6 +1504,7 @@ void PeerData::setEmojiStatus(const MTPEmojiStatus &status) {
 }
 
 void PeerData::setEmojiStatus(EmojiStatusId emojiStatusId, TimeId until) {
+	Soulgram::ApplyLocalEmojiStatus(this, emojiStatusId, until); // Soulgram
 	if (_emojiStatusId != emojiStatusId) {
 		_emojiStatusId = emojiStatusId;
 		session().changes().peerUpdated(this, UpdateFlag::EmojiStatus);

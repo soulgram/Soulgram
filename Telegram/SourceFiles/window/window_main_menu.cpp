@@ -10,6 +10,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "soulgram/soulgram_chat_actions.h" // Soulgram
 #include "soulgram/soulgram_lang.h" // Soulgram
 #include "soulgram/soulgram_settings.h" // Soulgram
+#include "core/version.h" // Soulgram
 
 #include "apiwrap.h"
 #include "base/event_filter.h"
@@ -391,15 +392,13 @@ MainMenu::MainMenu(
 		u"Soulgram"_q,
 		u"https://github.com/telegramdesktop/tdesktop"_q));
 	_telegram->setLinksTrusted();
-	// The canary version is too long for the "Version {version}" form.
+	// Soulgram: its own version, without "x64" it fits in Russian too.
 	_version->setMarkedText(
 		tr::link(
-			Core::BuildIsCanary
-				? currentVersionShortText()
-				: tr::lng_settings_current_version(
-					tr::now,
-					lt_version,
-					currentVersionShortText()),
+			tr::lng_settings_current_version(
+				tr::now,
+				lt_version,
+				QString::fromLatin1(SoulgramVersionStr)),
 			1) // Link 1.
 		.append(QChar(' '))
 		.append(QChar(8211))
@@ -407,7 +406,8 @@ MainMenu::MainMenu(
 		.append(tr::link(tr::lng_menu_about(tr::now), 2))); // Link 2.
 	_version->setLink(
 		1,
-		std::make_shared<UrlClickHandler>(Core::App().changelogLink()));
+		std::make_shared<UrlClickHandler>( // Soulgram
+			u"https://github.com/soulgram/Soulgram/releases"_q));
 	_version->setLink(
 		2,
 		std::make_shared<LambdaClickHandler>([=] {

@@ -40,6 +40,8 @@ PRIVATE
     soulgram/soulgram_stories.h
     soulgram/soulgram_ui.cpp
     soulgram/soulgram_ui.h
+    soulgram/soulgram_updates.cpp
+    soulgram/soulgram_updates.h
     soulgram/soulgram_view_once.cpp
     soulgram/soulgram_view_once.h
 )

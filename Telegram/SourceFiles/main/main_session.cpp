@@ -192,6 +192,7 @@ Session::Session(
 	// Load current userpic and keep it loaded.
 	_user->loadUserpic();
 	Soulgram::PreloadOwnVideoUserpic(this); // Soulgram
+	Soulgram::RestoreLocalEmojiStatus(this); // Soulgram
 	changes().peerFlagsValue(
 		_user,
 		Data::PeerUpdate::Flag::Photo

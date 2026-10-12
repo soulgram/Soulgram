@@ -8,6 +8,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "dialogs/dialogs_widget.h"
 
 #include "soulgram/soulgram_settings.h" // Soulgram
+#include "soulgram/soulgram_lang.h" // Soulgram
+#include "soulgram/soulgram_updates.h" // Soulgram
 #include "base/call_delayed.h"
 #include "base/qt/qt_key_modifiers.h"
 #include "base/options.h"
@@ -661,6 +663,34 @@ Widget::Widget(
 			checker.ready()
 		) | rpl::on_next([=] {
 			checkUpdateStatus();
+		}, lifetime());
+	} else { // Soulgram: updates from the GitHub releases.
+		Soulgram::UpdateReadyValue(
+		) | rpl::on_next([=](bool ready) {
+			if (_layout == Layout::Child || ready == !!_updateTelegram) {
+				return;
+			} else if (ready) {
+				_updateTelegram.create(
+					this,
+					Soulgram::Tr(Soulgram::Phrase::UpdateSoulgram),
+					st::dialogsUpdateButton,
+					st::dialogsInstallUpdate,
+					st::dialogsInstallUpdateOver,
+					true);
+				_updateTelegram->show();
+				_updateTelegram->setClickedCallback([=] {
+					if (!Soulgram::InstallUpdate()) {
+						controller->showToast(Soulgram::Tr(
+							Soulgram::Phrase::UpdateInstalledOnly));
+					}
+				});
+				if (_connecting) {
+					_connecting->raise();
+				}
+			} else {
+				_updateTelegram.destroy();
+			}
+			updateControlsGeometry();
 		}, lifetime());
 	}
 

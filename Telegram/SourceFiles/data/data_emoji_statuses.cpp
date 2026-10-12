@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_emoji_statuses.h"
 
+#include "soulgram/soulgram_premium.h" // Soulgram
 #include "main/main_session.h"
 #include "data/data_channel.h"
 #include "data/data_user.h"
@@ -508,6 +509,10 @@ void EmojiStatuses::set(
 		not_null<PeerData*> peer,
 		EmojiStatusId id,
 		TimeId until) {
+	if (Soulgram::KeepLocalEmojiStatus(peer, id, until)) {
+		peer->setEmojiStatus(id, until); // Soulgram: only on this computer.
+		return;
+	}
 	auto &api = _owner->session().api();
 	auto &requestId = _sentRequests[peer];
 	if (requestId) {

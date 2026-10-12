@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "history/view/history_view_transcribe_button.h"
 
+#include "soulgram/soulgram_premium.h" // Soulgram
 #include "base/unixtime.h"
 #include "boxes/premium_preview_box.h"
 #include "core/click_handler_types.h" // ClickHandlerContext
@@ -331,7 +332,7 @@ void TranscribeButton::paint(
 
 bool TranscribeButton::hasLock() const {
 	const auto session = &_item->history()->session();
-	if (session->premium()) {
+	if (Soulgram::ServerPremium(session)) { // Soulgram
 		return false;
 	}
 	const auto transcribes = &session->api().transcribes();
@@ -378,7 +379,7 @@ ClickHandlerPtr TranscribeButton::link() {
 		if (!item) {
 			return;
 		}
-		if (session->premium()) {
+		if (Soulgram::ServerPremium(session)) { // Soulgram
 			auto &transcribes = session->api().transcribes();
 			return summarize
 				? transcribes.toggleSummary(item)

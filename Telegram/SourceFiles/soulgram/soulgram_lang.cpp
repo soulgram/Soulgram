@@ -126,11 +126,6 @@ const Entry kEntries[] = {
 		"это решают серверы Telegram.",
 	},
 	{
-		Phrase::DeletedMark,
-		"deleted",
-		"удалено",
-	},
-	{
 		Phrase::DeletedMessages,
 		"Deleted messages",
 		"Удалённые сообщения",
@@ -942,6 +937,51 @@ const Entry kEntries[] = {
 		Phrase::SoulgramGithub,
 		"GitHub",
 		"GitHub",
+	},
+	{
+		Phrase::UpdateSoulgram,
+		"Update Soulgram",
+		"Обновить Soulgram",
+	},
+	{
+		Phrase::AutoUpdate,
+		"Update automatically",
+		"Обновлять автоматически",
+	},
+	{
+		Phrase::CheckUpdates,
+		"Check for updates",
+		"Проверить обновления",
+	},
+	{
+		Phrase::UpdateChecking,
+		"Checking...",
+		"Проверяю...",
+	},
+	{
+		Phrase::UpdateLatest,
+		"Latest version",
+		"Последняя версия",
+	},
+	{
+		Phrase::UpdateDownloading,
+		"Downloading %1...",
+		"Скачиваю %1...",
+	},
+	{
+		Phrase::UpdateReady,
+		"Version %1 is ready",
+		"Версия %1 готова",
+	},
+	{
+		Phrase::UpdateFailed,
+		"Could not check",
+		"Не удалось проверить",
+	},
+	{
+		Phrase::UpdateInstalledOnly,
+		"Updates work in the installed Soulgram.",
+		"Обновления работают в установленном Soulgram.",
 	},
 };
 
