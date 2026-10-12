@@ -983,6 +983,48 @@ const Entry kEntries[] = {
 		"Updates work in the installed Soulgram.",
 		"Обновления работают в установленном Soulgram.",
 	},
+	{
+		Phrase::SectionNetwork,
+		"Files and network",
+		"Файлы и сеть",
+	},
+	{
+		Phrase::FileBoost,
+		"Faster downloads and uploads",
+		"Ускорять скачивание и отправку файлов",
+	},
+	{
+		Phrase::FileBoostAbout,
+		"Files are sent in bigger parts and downloads start with more "
+		"connections to the Telegram servers. Downloads change after a "
+		"restart. Without Premium Telegram may still limit the speed.",
+		"Файлы отправляются кусками побольше, а скачивание сразу "
+		"открывает больше соединений с серверами Telegram. Для "
+		"скачивания нужен перезапуск. Без Premium Telegram всё равно "
+		"может ограничивать скорость.",
+	},
+	{
+		Phrase::HideAllChats,
+		"Hide the \"All chats\" folder",
+		"Скрывать папку «Все чаты»",
+	},
+	{
+		Phrase::HideOwnPhone,
+		"Hide my phone number",
+		"Скрывать мой номер телефона",
+	},
+	{
+		Phrase::HideOwnPhoneAbout,
+		"Settings and your profile show \"Number hidden\" instead of your "
+		"number.",
+		"В настройках и в твоём профиле вместо номера будет «Номер "
+		"скрыт».",
+	},
+	{
+		Phrase::PhoneHidden,
+		"Number hidden",
+		"Номер скрыт",
+	},
 };
 
 [[nodiscard]] bool UseRussian() {

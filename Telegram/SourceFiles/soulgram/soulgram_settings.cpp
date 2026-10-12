@@ -59,6 +59,9 @@ const Field kFields[] = {
 	{ "shot_colorful_replies", &Settings::shotColorfulReplies },
 	{ "shot_reveal_spoilers", &Settings::shotRevealSpoilers },
 	{ "auto_update", &Settings::autoUpdate },
+	{ "hide_own_phone", &Settings::hideOwnPhone },
+	{ "hide_all_chats_folder", &Settings::hideAllChatsFolder },
+	{ "file_boost", &Settings::fileBoost },
 };
 
 struct IntField {

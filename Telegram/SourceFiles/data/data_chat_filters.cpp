@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_chat_filters.h"
 
+#include "soulgram/soulgram_settings.h" // Soulgram
 #include "api/api_text_entities.h"
 #include "history/history.h"
 #include "data/data_peer.h"
@@ -387,6 +388,15 @@ bool ChatFilter::contains(
 		|| _always.contains(history);
 }
 
+namespace {
+
+// Soulgram: "All chats" may be hidden from the folders.
+[[nodiscard]] bool HasAll(const std::vector<ChatFilter> &list) {
+	return ranges::contains(list, FilterId(), &ChatFilter::id);
+}
+
+} // namespace
+
 ChatFilters::ChatFilters(not_null<Session*> owner)
 : _owner(owner)
 , _moreChatsTimer([=] { checkLoadMoreChatsLists(); }) {
@@ -491,8 +501,16 @@ void ChatFilters::requestToggleTags(bool value, Fn<void()> fail) {
 void ChatFilters::received(const QVector<MTPDialogFilter> &list) {
 	auto position = 0;
 	auto changed = false;
+	// Soulgram: "All chats" is hidden only if there are other folders.
+	const auto hideAll = Soulgram::Current().hideAllChatsFolder
+		&& ranges::any_of(list, [](const MTPDialogFilter &filter) {
+			return filter.type() != mtpc_dialogFilterDefault;
+		});
 	for (const auto &filter : list) {
 		auto parsed = ChatFilter::FromTL(filter, _owner);
+		if (hideAll && !parsed.id()) {
+			continue; // Soulgram
+		}
 		const auto b = begin(_list) + position;
 		const auto e = end(_list);
 		const auto i = ranges::find(b, e, parsed.id(), &ChatFilter::id);
@@ -514,7 +532,8 @@ void ChatFilters::received(const QVector<MTPDialogFilter> &list) {
 		applyRemove(position);
 		changed = true;
 	}
-	if (!ranges::contains(begin(_list), end(_list), 0, &ChatFilter::id)) {
+	if (!hideAll // Soulgram
+		&& !ranges::contains(begin(_list), end(_list), 0, &ChatFilter::id)) {
 		_list.insert(begin(_list), ChatFilter());
 	}
 	if (changed || !_loaded || _reloading) {
@@ -527,7 +546,11 @@ void ChatFilters::received(const QVector<MTPDialogFilter> &list) {
 void ChatFilters::apply(const MTPUpdate &update) {
 	update.match([&](const MTPDupdateDialogFilter &data) {
 		if (const auto filter = data.vfilter()) {
-			set(ChatFilter::FromTL(*filter, _owner));
+			auto parsed = ChatFilter::FromTL(*filter, _owner);
+			if (!parsed.id() && !HasAll(_list)) {
+				return; // Soulgram: "All chats" is hidden.
+			}
+			set(std::move(parsed));
 		} else {
 			remove(data.vid().v);
 		}
@@ -684,6 +707,9 @@ void ChatFilters::remove(FilterId id) {
 }
 
 void ChatFilters::moveAllToFront() {
+	if (!_list.empty() && !HasAll(_list)) {
+		return; // Soulgram: "All chats" is hidden.
+	}
 	const auto i = ranges::find(_list, FilterId(), &ChatFilter::id);
 	if (!_list.empty() && i == begin(_list)) {
 		return;
@@ -908,7 +934,9 @@ FilterId ChatFilters::defaultId() const {
 FilterId ChatFilters::lookupId(int index) const {
 	Expects(index >= 0 && index < _list.size());
 
-	if (_owner->session().user()->isPremium() || !_list.front().id()) {
+	if (_owner->session().user()->isPremium()
+		|| !_list.front().id()
+		|| !HasAll(_list)) { // Soulgram
 		return _list[index].id();
 	}
 	const auto i = ranges::find(_list, FilterId(0), &ChatFilter::id);
@@ -924,8 +952,13 @@ bool ChatFilters::loaded() const {
 }
 
 bool ChatFilters::has() const {
-	return _list.size() > 1;
+	// Soulgram: any folder besides "All chats", that may be hidden.
+	return ranges::any_of(_list, [](const ChatFilter &filter) {
+		return filter.id() != 0;
+	});
 }
+
+
 
 rpl::producer<> ChatFilters::changed() const {
 	return _listChanged.events();

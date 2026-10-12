@@ -12,6 +12,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_histories.h"
 #include "data/data_peer.h"
 #include "data/data_session.h"
+#include "data/data_user.h"
 #include "history/history.h"
 #include "history/history_item.h"
 #include "lang/lang_keys.h"
@@ -21,6 +22,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "soulgram/soulgram_settings.h"
 #include "ui/boxes/confirm_box.h"
 #include "ui/layers/show.h"
+#include "ui/text/format_values.h"
 
 namespace Soulgram {
 namespace {
@@ -135,6 +137,12 @@ float64 MessageOpacity(not_null<const HistoryItem*> item) {
 	return (Current().translucentDeleted && IsDeleted(item))
 		? kDeletedOpacity
 		: 1.;
+}
+
+QString PhoneText(not_null<UserData*> user) {
+	return (user->isSelf() && Current().hideOwnPhone)
+		? Tr(Phrase::PhoneHidden)
+		: Ui::FormatPhone(user->phone());
 }
 
 } // namespace Soulgram

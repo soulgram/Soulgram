@@ -60,6 +60,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "settings/sections/settings_privacy_security.h"
 #include "settings/settings_scale_preview.h"
 #include "soulgram/soulgram_lang.h" // Soulgram
+#include "soulgram/soulgram_extras.h" // Soulgram
 #include "soulgram/soulgram_settings_section.h" // Soulgram
 #include "storage/localstorage.h"
 #include "ui/basic_click_handlers.h"
@@ -856,8 +857,8 @@ void SetupValidatePhoneNumberSuggestion(
 		content,
 		tr::lng_settings_suggestion_phone_number_title(
 			lt_phone,
-			rpl::single(
-				Ui::FormatPhone(controller->session().user()->phone()))),
+			rpl::single( // Soulgram
+				Soulgram::PhoneText(controller->session().user()))),
 		QMargins(
 			st::boxRowPadding.left()
 				- st::defaultSubsectionTitlePadding.left(),

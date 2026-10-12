@@ -204,6 +204,13 @@ enum class Phrase {
 	UpdateReady,
 	UpdateFailed,
 	UpdateInstalledOnly,
+	SectionNetwork,
+	FileBoost,
+	FileBoostAbout,
+	HideAllChats,
+	HideOwnPhone,
+	HideOwnPhoneAbout,
+	PhoneHidden,
 };
 
 [[nodiscard]] QString Tr(Phrase phrase);

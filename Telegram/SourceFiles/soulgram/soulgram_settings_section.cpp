@@ -7,11 +7,15 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "soulgram/soulgram_settings_section.h"
 
+#include "core/application.h"
 #include "core/click_handler_types.h"
 #include "core/version.h"
+#include "data/data_chat_filters.h"
 #include "data/data_peer.h"
 #include "data/data_session.h"
 #include "lang/lang_keys.h"
+#include "main/main_account.h"
+#include "main/main_domain.h"
 #include "main/main_session.h"
 #include "settings/settings_common.h"
 #include "settings/settings_common_session.h"
@@ -51,6 +55,7 @@ enum class Category {
 	Filters,
 	Sending,
 	Interface,
+	Network,
 	Links,
 };
 
@@ -70,6 +75,7 @@ struct CategoryInfo {
 		{ Category::Filters, Phrase::SectionFilters, &st::menuIconAntispam },
 		{ Category::Sending, Phrase::SectionSending, &st::menuIconSend },
 		{ Category::Interface, Phrase::SectionInterface, &st::menuIconPalette },
+		{ Category::Network, Phrase::SectionNetwork, &st::menuIconDownload },
 		{ Category::Links, Phrase::SectionLinks, &st::menuIconLink },
 	};
 	return result;
@@ -248,6 +254,9 @@ void FillAds(not_null<Ui::VerticalLayout*> container) {
 void FillStreamer(not_null<Ui::VerticalLayout*> container) {
 	AddToggle(container, Phrase::StreamerMode, &Settings::streamerMode);
 	AddAbout(container, Phrase::StreamerAbout);
+	Ui::AddSkip(container);
+	AddToggle(container, Phrase::HideOwnPhone, &Settings::hideOwnPhone);
+	AddAbout(container, Phrase::HideOwnPhoneAbout);
 }
 
 void FillFilters(
@@ -322,7 +331,30 @@ void FillInterface(not_null<Ui::VerticalLayout*> container) {
 		container,
 		Phrase::DisableNotificationsDelay,
 		&Settings::disableNotificationsDelay);
+
+	// The folders are loaded again to show or hide "All chats".
+	const auto hideAll = container->add(object_ptr<Ui::SettingsButton>(
+		container,
+		TrValue(Phrase::HideAllChats),
+		st::settingsButtonNoIcon));
+	hideAll->toggleOn(rpl::single(Current().hideAllChatsFolder));
+	hideAll->toggledChanges(
+	) | rpl::on_next([=](bool value) {
+		Change([&](Settings &settings) {
+			settings.hideAllChatsFolder = value;
+		});
+		for (const auto &[index, account] : Core::App().domain().accounts()) {
+			if (const auto session = account->maybeSession()) {
+				session->data().chatsFilters().reload();
+			}
+		}
+	}, hideAll->lifetime());
 	AddAbout(container, Phrase::InterfaceAbout);
+}
+
+void FillNetwork(not_null<Ui::VerticalLayout*> container) {
+	AddToggle(container, Phrase::FileBoost, &Settings::fileBoost);
+	AddAbout(container, Phrase::FileBoostAbout);
 }
 
 void FillLinks(
@@ -353,6 +385,7 @@ void FillCategory(
 	case Category::Filters: FillFilters(container, controller); break;
 	case Category::Sending: FillSending(container); break;
 	case Category::Interface: FillInterface(container); break;
+	case Category::Network: FillNetwork(container); break;
 	case Category::Links: FillLinks(container, controller); break;
 	}
 }
@@ -398,6 +431,7 @@ rpl::producer<QString> CategorySection<kCategory>::title() {
 	case Category::Sending: return CategorySection<Category::Sending>::Id();
 	case Category::Interface:
 		return CategorySection<Category::Interface>::Id();
+	case Category::Network: return CategorySection<Category::Network>::Id();
 	case Category::Links: return CategorySection<Category::Links>::Id();
 	}
 	Unexpected("Category in Soulgram::CategoryId.");

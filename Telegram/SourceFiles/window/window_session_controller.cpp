@@ -2042,14 +2042,27 @@ rpl::producer<> SessionController::filtersMenuChanged() const {
 
 void SessionController::checkOpenedFilter() {
 	activateFirstChatsFilter();
+	const auto filters = &session().data().chatsFilters();
+	const auto hasAll = ranges::contains( // Soulgram
+		filters->list(),
+		FilterId(),
+		&Data::ChatFilter::id);
 	if (const auto filterId = activeChatsFilterCurrent()) {
-		const auto &list = session().data().chatsFilters().list();
+		const auto &list = filters->list();
 		const auto i = ranges::find(list, filterId, &Data::ChatFilter::id);
 		if (i == end(list)) {
 			setActiveChatsFilter(
-				0,
+				hasAll ? 0 : filters->defaultId(), // Soulgram
 				{ anim::type::normal, anim::activation::background });
 		}
+	} else if (filters->loaded()
+		&& !hasAll
+		&& !filters->list().empty()
+		&& !_openedFolder.current()) {
+		// Soulgram: "All chats" is hidden, the first folder is opened.
+		setActiveChatsFilter(
+			filters->defaultId(),
+			{ anim::type::normal, anim::activation::background });
 	}
 }
 

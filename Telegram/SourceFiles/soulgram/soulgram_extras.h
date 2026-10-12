@@ -10,6 +10,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 class History;
 class HistoryItem;
 class PeerData;
+class UserData;
 
 namespace Ui {
 class Show;
@@ -41,5 +42,8 @@ void ConfirmSending(
 
 // Kept deleted messages may be painted translucent.
 [[nodiscard]] float64 MessageOpacity(not_null<const HistoryItem*> item);
+
+// The formatted phone, "Number hidden" for the own one if it is turned on.
+[[nodiscard]] QString PhoneText(not_null<UserData*> user);
 
 } // namespace Soulgram

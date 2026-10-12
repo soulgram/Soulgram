@@ -76,6 +76,15 @@ struct Settings {
 
 	// Updates from the GitHub releases.
 	bool autoUpdate = true;
+
+	// "Number hidden" instead of the own phone number.
+	bool hideOwnPhone = false;
+
+	// Folders without "All chats", if there are other folders.
+	bool hideAllChatsFolder = false;
+
+	// Bigger upload parts and more download connections.
+	bool fileBoost = false;
 };
 
 [[nodiscard]] const Settings &Current();

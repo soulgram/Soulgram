@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "info/profile/info_profile_values.h"
 
+#include "soulgram/soulgram_extras.h" // Soulgram
+#include "soulgram/soulgram_settings.h" // Soulgram
 #include "api/api_chat_participants.h"
 #include "apiwrap.h"
 #include "info/profile/info_profile_phone_menu.h"
@@ -129,9 +131,10 @@ rpl::producer<TextWithEntities> PhoneValue(not_null<UserData*> user) {
 		Countries::Instance().updated(),
 		user->session().changes().peerFlagsValue(
 			user,
-			UpdateFlag::PhoneNumber) | rpl::to_empty
+			UpdateFlag::PhoneNumber) | rpl::to_empty,
+		Soulgram::Changes() // Soulgram
 	) | rpl::map([=] {
-		return tr::marked(Ui::FormatPhone(user->phone()));
+		return tr::marked(Soulgram::PhoneText(user)); // Soulgram
 	});
 }
 

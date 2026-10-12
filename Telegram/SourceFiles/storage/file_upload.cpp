@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/file_upload.h"
 
 #include "soulgram/soulgram_premium.h" // Soulgram
+#include "soulgram/soulgram_settings.h" // Soulgram
 #include "api/api_editing.h"
 #include "api/api_send_progress.h"
 #include "boxes/abstract_box.h"
@@ -148,6 +149,10 @@ Uploader::Entry::Entry(
 
 void Uploader::Entry::setDocSize(int64 size) {
 	docSize = size;
+	if (Soulgram::Current().fileBoost
+		&& setPartSize(kDocumentUploadPartSize4)) {
+		return; // Soulgram: fewer requests for the same file.
+	}
 	constexpr auto limit0 = 1024 * 1024;
 	constexpr auto limit1 = 32 * limit0;
 	if (docSize >= limit0 || !setPartSize(kDocumentUploadPartSize0)) {
